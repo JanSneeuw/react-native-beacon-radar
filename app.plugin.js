@@ -1,5 +1,5 @@
 const { createRunOncePlugin } = require('@expo/config-plugins');
-const withBeaconRadar = require('./withBeaconRadar');
+const withBeaconRadar = require('./expo-plugin/withBeaconRadar');
 
 // A helper function to ensure the plugin is only run once per config
 const withRunOnceBeaconRadar = createRunOncePlugin(
