@@ -1,5 +1,7 @@
 # react-native-beacon-radar
 
+## CURRENTLY IN PROGRESS.... RIGHT NOW ONLY SCANS FOR CERTAIN IBEACON
+
 Package to scan for iBeacons
 
 ## Installation
@@ -11,11 +13,14 @@ npm install react-native-beacon-radar
 ## Usage
 
 ```js
-import { multiply } from 'react-native-beacon-radar';
+import { startScanning } from 'react-native-beacon-radar';
 
 // ...
 
-const result = await multiply(3, 7);
+startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {
+  useForegroundService: true,
+  useBackgroundScanning: true,
+});
 ```
 
 ## Contributing
