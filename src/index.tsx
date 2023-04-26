@@ -17,6 +17,18 @@ const BeaconRadar = NativeModules.BeaconRadar
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return BeaconRadar.multiply(a, b);
+export function startScanning(uuid: string, config: any) {
+  return BeaconRadar.startScanning(uuid, config);
+}
+
+export function stopScanning() {
+  return BeaconRadar.stopScanning();
+}
+
+export function startForegroundService() {
+  return BeaconRadar.startForegroundService();
+}
+
+export function stopForegroundService() {
+  return BeaconRadar.stopForegroundService();
 }
