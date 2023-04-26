@@ -1,6 +1,6 @@
 {
   "name": "react-native-beacon-radar",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "test",
   "main": "app.plugin.js",
   "module": "lib/module/index",
@@ -14,6 +14,7 @@
     "android",
     "ios",
     "cpp",
+    "expo-plugin",
     "*.podspec",
     "!lib/typescript/example",
     "!ios/build",
