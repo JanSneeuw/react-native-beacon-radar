@@ -42,13 +42,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/FirstOrDefault/react-native-beacon-radar",
+  "repository": "https://github.com/JanSneeuw/react-native-beacon-radar",
   "author": "Sven van der Zwet <sven@firstordefault.nl> (https://firstordefault.nl)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/FirstOrDefault/react-native-beacon-radar/issues"
+    "url": "https://github.com/JanSneeuw/react-native-beacon-radar/issues"
   },
-  "homepage": "https://github.com/FirstOrDefault/react-native-beacon-radar#readme",
+  "homepage": "https://github.com/JanSneeuw/react-native-beacon-radar#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
