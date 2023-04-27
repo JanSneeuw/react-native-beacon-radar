@@ -9,15 +9,20 @@ Package to scan for iBeacons on both Android and IOS. This module is fully compa
 ```sh
 npm install react-native-beacon-radar
 ```
+OR
+```sh
+yarn add react-native-beacon-radar
+```
 
-## Usage
+## Basic usage
 
 ```js
+import { DeviceEventEmitter } from 'react-native';
 import { startScanning } from 'react-native-beacon-radar';
 
 // ...
 
-startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {
+startScanning('YOUR UUID', {
   useForegroundService: true,
   useBackgroundScanning: true,
 });
