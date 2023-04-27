@@ -1,6 +1,6 @@
 {
   "name": "react-native-beacon-radar",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "test",
   "main": "app.plugin.js",
   "module": "lib/module/index",
@@ -41,7 +41,11 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "ibeacon",
+    "bluetooth beacon",
+    "expo bluetooth beacons",
+    "expo ibeacon"
   ],
   "repository": "https://github.com/JanSneeuw/react-native-beacon-radar",
   "author": "Sven van der Zwet <sven@firstordefault.nl> (https://firstordefault.nl)",
