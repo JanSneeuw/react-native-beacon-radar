@@ -34,6 +34,34 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
           //TODO Handling older versions
       }
   }
+    
+    @objc func requestAlwaysAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let locationManager = CLLocationManager()
+            locationManager.delegate = self
+
+            locationManager.requestAlwaysAuthorization()
+
+            let status = CLLocationManager.authorizationStatus()
+            let statusString = statusToString(status)
+            resolve(["status": statusString])
+    }
+    
+    @objc func requestWhenInUseAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let locationManager = CLLocationManager()
+        locationManager.delegate = self
+
+        locationManager.requestWhenInUseAuthorization()
+
+        let status = CLLocationManager.authorizationStatus()
+        let statusString = statusToString(status)
+        resolve(["status": statusString])
+    }
+    
+    @objc func getAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let status = CLLocationManager.authorizationStatus()
+        resolve(statusToString(status: status))
+    }
+
 
   // CLLocationManagerDelegate methods
 
@@ -81,4 +109,22 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
         // Restart ranging when the app resumes from a paused state
         locationManager.startRangingBeacons(in: beaconRegion)
     }
+    
+    private func statusToString(_ status: CLAuthorizationStatus) -> String {
+        switch status {
+        case .notDetermined:
+            return "notDetermined"
+        case .restricted:
+            return "restricted"
+        case .denied:
+            return "denied"
+        case .authorizedAlways:
+            return "authorizedAlways"
+        case .authorizedWhenInUse:
+            return "authorizedWhenInUse"
+        @unknown default:
+            return "unknown"
+        }
+    }
+
 }

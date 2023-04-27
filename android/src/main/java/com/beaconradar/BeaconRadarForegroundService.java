@@ -47,12 +47,13 @@ public class BeaconRadarForegroundService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    String text = "Beacon Radar running in the background";
+    String text = intent.getStringExtra("foregroundMessage");
+    String title = intent.getStringExtra("foregroundTitle");
     Intent notificationIntent = new Intent(this, BeaconRadarForegroundService.class);
     PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
     Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-      .setContentTitle("Beacon Radar")
+      .setContentTitle(title)
       .setContentText(text)
       .setSmallIcon(icon)
       .setContentIntent(pendingIntent)

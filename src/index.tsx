@@ -32,3 +32,15 @@ export function startForegroundService() {
 export function stopForegroundService() {
   return BeaconRadar.stopForegroundService();
 }
+
+export function requestAlwaysAuthorization(): Promise<{ status: string }> {
+  return BeaconRadar.requestAlwaysAuthorization();
+}
+
+export function requestWhenInUseAuthorization(): Promise<{ status: string }> {
+  return BeaconRadar.requestWhenInUseAuthorization();
+}
+
+export function getAuthorizationStatus(): Promise<{ status: string }> {
+  return BeaconRadar.getAuthorizationStatus();
+}

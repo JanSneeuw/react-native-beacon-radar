@@ -3,7 +3,7 @@ import { DeviceEventEmitter, Platform } from 'react-native';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { startScanning } from 'react-native-beacon-radar';
+import { requestAlwaysAuthorization, startScanning } from 'react-native-beacon-radar';
 
 export default function App() {
   const [beacons, setBeacons] = React.useState<any[]>([]);
@@ -44,7 +44,9 @@ export default function App() {
             // Handle permission denial
           }
         } else {
-          startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {});
+          const response = await requestAlwaysAuthorization();
+          console.log('response', response);
+          //startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {});
         }
       } else {
         // Handle permission denial

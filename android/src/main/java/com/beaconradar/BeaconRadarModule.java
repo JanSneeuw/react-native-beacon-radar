@@ -1,14 +1,18 @@
 package com.beaconradar;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -45,8 +49,11 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
 
   private static BeaconRadarModule instance;
 
+  private final ReactContext reactContext;
+
   public BeaconRadarModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    this.reactContext = reactContext;
     beaconManager = BeaconManager.getInstanceForApplication(reactContext);
     beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
     region = new Region("RNIbeaconScannerRegion", null, null, null);
@@ -68,7 +75,11 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void startScanning(String uuid, ReadableMap config, final Promise promise) {
       if (config != null && config.hasKey("useForegroundService") && config.getBoolean("useForegroundService")) {
+        String foregroundTitle = config.hasKey("foregroundTitle") ? config.getString("foregroundTitle") : "Beacon Radar";
+        String foregroundMessage = config.hasKey("foregroundMessage") ? config.getString("foregroundMessage") : "Beacon Radar running in the background";
         Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
+        intent.putExtra("foregroundMessage", foregroundMessage);
+        intent.putExtra("foregroundTitle", foregroundTitle);
         beaconManager.setBackgroundBetweenScanPeriod(0);
         beaconManager.setBackgroundScanPeriod(1100);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -78,6 +89,35 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
         runScan(uuid, promise);
       }
   }
+
+  @ReactMethod
+  public void requestAlwaysAuthorization(final Promise promise) {
+    if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+      promise.resolve("granted");
+    } else {
+      ActivityCompat.requestPermissions(reactContext.getCurrentActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+      if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        promise.resolve("granted");
+      } else {
+        promise.resolve("denied");
+      }
+    }
+  }
+
+  @ReactMethod
+  public void requestWhenInUseAuthorization(final Promise promise) {
+    requestAlwaysAuthorization(promise);
+  }
+
+  @ReactMethod
+  public void getAuthorizationStatus(final Promise promise) {
+    if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+      promise.resolve("granted");
+    } else {
+      promise.resolve("denied");
+    }
+  }
+
 
   public void runScan(String uuid, final Promise promise) {
     if (!beaconManager.isAnyConsumerBound()) {
