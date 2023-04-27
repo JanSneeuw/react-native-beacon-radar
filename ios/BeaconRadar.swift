@@ -59,7 +59,7 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
     
     @objc func getAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         let status = CLLocationManager.authorizationStatus()
-        resolve(statusToString(status: status))
+        resolve(statusToString(status))
     }
 
 

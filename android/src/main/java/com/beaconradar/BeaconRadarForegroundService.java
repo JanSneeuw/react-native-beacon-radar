@@ -49,6 +49,7 @@ public class BeaconRadarForegroundService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     String text = intent.getStringExtra("foregroundMessage");
     String title = intent.getStringExtra("foregroundTitle");
+    String uuid = intent.getStringExtra("uuid");
     Intent notificationIntent = new Intent(this, BeaconRadarForegroundService.class);
     PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
@@ -63,62 +64,121 @@ public class BeaconRadarForegroundService extends Service {
 
 
     // runScan with empty promise
-    beaconRadarModule.runScan("B9407F30-F5F8-466E-AFF9-25556B57FE6D", new Promise() {
-      @Override
-      public void resolve(Object value) {
-        // Scanning started
-      }
+    if (uuid != null) {
+      beaconRadarModule.runScan(uuid, new Promise() {
+        @Override
+        public void resolve(Object value) {
+          // Scanning started
+        }
 
-      @Override
-      public void reject(String s, String s1) {
+        @Override
+        public void reject(String s, String s1) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s, Throwable throwable) {
+        @Override
+        public void reject(String s, Throwable throwable) {
 
-      }
+        }
 
-      @Override
-      public void reject(String code, String message, Throwable e) {
-        // Handle error
-      }
+        @Override
+        public void reject(String code, String message, Throwable e) {
+          // Handle error
+        }
 
-      @Override
-      public void reject(Throwable throwable) {
+        @Override
+        public void reject(Throwable throwable) {
 
-      }
+        }
 
-      @Override
-      public void reject(Throwable throwable, WritableMap writableMap) {
+        @Override
+        public void reject(Throwable throwable, WritableMap writableMap) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s, @NonNull WritableMap writableMap) {
+        @Override
+        public void reject(String s, @NonNull WritableMap writableMap) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s, Throwable throwable, WritableMap writableMap) {
+        @Override
+        public void reject(String s, Throwable throwable, WritableMap writableMap) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s, String s1, @NonNull WritableMap writableMap) {
+        @Override
+        public void reject(String s, String s1, @NonNull WritableMap writableMap) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s, String s1, Throwable throwable, WritableMap writableMap) {
+        @Override
+        public void reject(String s, String s1, Throwable throwable, WritableMap writableMap) {
 
-      }
+        }
 
-      @Override
-      public void reject(String s) {
+        @Override
+        public void reject(String s) {
 
-      }
-    });
+        }
+      });
+    } else {
+      beaconRadarModule.runScanForAllBeacons(new Promise() {
+        @Override
+        public void resolve(@Nullable Object o) {
+
+        }
+
+        @Override
+        public void reject(String s, String s1) {
+
+        }
+
+        @Override
+        public void reject(String s, Throwable throwable) {
+
+        }
+
+        @Override
+        public void reject(String s, String s1, Throwable throwable) {
+
+        }
+
+        @Override
+        public void reject(Throwable throwable) {
+
+        }
+
+        @Override
+        public void reject(Throwable throwable, WritableMap writableMap) {
+
+        }
+
+        @Override
+        public void reject(String s, @NonNull WritableMap writableMap) {
+
+        }
+
+        @Override
+        public void reject(String s, Throwable throwable, WritableMap writableMap) {
+
+        }
+
+        @Override
+        public void reject(String s, String s1, @NonNull WritableMap writableMap) {
+
+        }
+
+        @Override
+        public void reject(String s, String s1, Throwable throwable, WritableMap writableMap) {
+
+        }
+
+        @Override
+        public void reject(String s) {
+
+        }
+      });
+    }
 
 
     return START_NOT_STICKY;

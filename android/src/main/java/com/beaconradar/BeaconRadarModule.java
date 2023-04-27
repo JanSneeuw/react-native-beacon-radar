@@ -80,6 +80,7 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
         Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
         intent.putExtra("foregroundMessage", foregroundMessage);
         intent.putExtra("foregroundTitle", foregroundTitle);
+        intent.putExtra("uuid", uuid);
         beaconManager.setBackgroundBetweenScanPeriod(0);
         beaconManager.setBackgroundScanPeriod(1100);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -117,6 +118,55 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
       promise.resolve("denied");
     }
   }
+
+  @ReactMethod
+  public void startRadar(ReadableMap config, final Promise promise) {
+    if (config != null && config.hasKey("useForegroundService") && config.getBoolean("useForegroundService")) {
+      Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
+      beaconManager.setBackgroundBetweenScanPeriod(0);
+      beaconManager.setBackgroundScanPeriod(1100);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        getReactApplicationContext().startForegroundService(intent);
+      }
+    } else {
+      runScanForAllBeacons(promise);
+    }
+  }
+
+  public void runScanForAllBeacons(final Promise promise) {
+    if (!beaconManager.isAnyConsumerBound()) {
+      beaconManager.addRangeNotifier(new RangeNotifier() {
+        @Override
+        public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+          WritableArray beaconArray = Arguments.createArray();
+
+          for (Beacon beacon : beacons) {
+            WritableMap beaconMap = Arguments.createMap();
+            beaconMap.putString("uuid", beacon.getId1().toString());
+            beaconMap.putInt("major", beacon.getId2().toInt());
+            beaconMap.putInt("minor", beacon.getId3().toInt());
+            beaconMap.putDouble("distance", beacon.getDistance());
+            beaconMap.putString("name", beacon.getBluetoothName());
+
+            beaconArray.pushMap(beaconMap);
+          }
+
+          getReactApplicationContext()
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("onBeaconsDetected", beaconArray);
+        }
+      });
+      try {
+        beaconManager.startRangingBeacons(new Region("RNIbeaconScannerRegionAllBeacons", null, null, null));
+        promise.resolve(null);
+      } catch (Exception e) {
+        promise.reject("START_SCANNING_ALL_BEACONS_FAILED", "Failed to start scanning for all beacons.", e);
+      }
+    } else {
+      promise.reject("ALREADY_BOUND", "Beacon scanning is already active.");
+    }
+  }
+
 
 
   public void runScan(String uuid, final Promise promise) {

@@ -44,3 +44,12 @@ export function requestWhenInUseAuthorization(): Promise<{ status: string }> {
 export function getAuthorizationStatus(): Promise<{ status: string }> {
   return BeaconRadar.getAuthorizationStatus();
 }
+
+export function startRadar(config: any) {
+  if (Platform.OS === 'android') {
+    return BeaconRadar.startRadar(config);
+  } else {
+    console.warn('startRadar is only available on Android');
+    return;
+  }
+}

@@ -3,7 +3,7 @@ import { DeviceEventEmitter, Platform } from 'react-native';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { requestAlwaysAuthorization, startScanning } from 'react-native-beacon-radar';
+import { requestAlwaysAuthorization, startRadar } from 'react-native-beacon-radar';
 
 export default function App() {
   const [beacons, setBeacons] = React.useState<any[]>([]);
@@ -35,18 +35,22 @@ export default function App() {
             bluetoothScanResult === RESULTS.GRANTED
           ) {
             // Permission granted, start scanning
-            startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {
+            /*startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {
               useForegroundService: true,
               useBackgroundScanning: true,
+            });*/
+            startRadar({
+              useForegroundService: true,
             });
             //startForegroundService();
           } else {
             // Handle permission denial
           }
         } else {
-          const response = await requestAlwaysAuthorization();
-          console.log('response', response);
+          /*const response = await requestAlwaysAuthorization();
+          console.log('response', response);*/
           //startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {});
+          startRadar({})
         }
       } else {
         // Handle permission denial

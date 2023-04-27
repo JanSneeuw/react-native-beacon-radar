@@ -1,6 +1,6 @@
 {
   "name": "react-native-beacon-radar",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "test",
   "main": "app.plugin.js",
   "module": "lib/module/index",

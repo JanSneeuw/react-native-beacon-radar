@@ -2,7 +2,7 @@
 
 ## CURRENTLY IN PROGRESS.... RIGHT NOW ONLY SCANS FOR CERTAIN IBEACON
 
-Package to scan for iBeacons
+Package to scan for iBeacons on both Android and IOS. This module is fully compatible with Expo (Will not work with Expo Go, but will work with development build.)
 
 ## Installation
 
@@ -34,12 +34,30 @@ DeviceEventEmitter.addListener('onBeaconsDetected', (beacons) => {
 | **requestAlwaysAuthorization**    | This method should be called before anything else is called. It handles to request the use of beacons while the application is open or in the background.                                                             |
 | **getAuthorizationStatus**        | This methods gets the current authorization status.                                                                                                                                                                   |
 | **startScanning**                 | This method starts scanning for a certain beacon based on its UUID.                                                                                                                                                   |
+| **startRadar (Android only)**     | This method starts scanning for all beacons in range. This is only available on Android.                                                                                                                              |
 
 
 | Event                 | Description                                                               |
 |:----------------------|:--------------------------------------------------------------------------|
 | **onBeaconsDetected** | This event gets called when the beacon you are searching for is in range. |
 
+
+## Expo
+This module will work with the Expo managed workflow. It will not however work with Expo Go, since it needs native features. You can use the development build of Expo to test this module. More about this can be found [here](https://docs.expo.dev/develop/development-builds/create-a-build/). To use this module in expo managed add the following to your app.json:
+```json
+"expo": {
+  "ios": {
+    "infoPlist": {
+      "NSLocationWhenInUseUsageDescription": "We need your location to detect nearby beacons.",
+      "NSLocationAlwaysUsageDescription": "We need your location to detect nearby beacons even when the app is in the background.",
+      "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to detect nearby beacons even when the app is in the background."
+    }
+  },
+  "plugins": [
+    "react-native-beacon-radar"
+  ]
+}
+```
 
 ## Contributing
 
