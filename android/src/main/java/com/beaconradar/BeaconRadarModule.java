@@ -94,11 +94,11 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void requestAlwaysAuthorization(final Promise promise) {
     if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-      promise.resolve("granted");
+      promise.resolve("authorized");
     } else {
       ActivityCompat.requestPermissions(reactContext.getCurrentActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
       if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-        promise.resolve("granted");
+        promise.resolve("authorized");
       } else {
         promise.resolve("denied");
       }
