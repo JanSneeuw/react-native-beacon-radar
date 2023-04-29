@@ -3,7 +3,7 @@ import { DeviceEventEmitter, Platform } from 'react-native';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { requestAlwaysAuthorization, startRadar } from 'react-native-beacon-radar';
+import { startRadar } from 'react-native-beacon-radar';
 
 export default function App() {
   const [beacons, setBeacons] = React.useState<any[]>([]);
@@ -50,7 +50,7 @@ export default function App() {
           /*const response = await requestAlwaysAuthorization();
           console.log('response', response);*/
           //startScanning('B9407F30-F5F8-466E-AFF9-25556B57FE6D', {});
-          startRadar({})
+          startRadar({});
         }
       } else {
         // Handle permission denial
@@ -59,9 +59,9 @@ export default function App() {
 
     requestLocationPermission();
 
-    DeviceEventEmitter.addListener('onBeaconsDetected', (beacons) => {
-      console.log('onBeaconsDetected', beacons);
-      setBeacons(beacons);
+    DeviceEventEmitter.addListener('onBeaconsDetected', (beac) => {
+      console.log('onBeaconsDetected', beac);
+      setBeacons(beac);
     });
   }, []);
 

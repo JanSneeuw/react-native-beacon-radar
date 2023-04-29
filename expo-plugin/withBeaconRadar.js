@@ -2,7 +2,7 @@ const { withAndroidManifest, withInfoPlist } = require('@expo/config-plugins');
 
 const withBeaconRadar = (config) => {
   // Android configurations
-  config = withAndroidManifest(config, (config) => {
+  config = withAndroidManifest(config, (conf) => {
     /*const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(
       config.modResults
     );
@@ -15,20 +15,20 @@ const withBeaconRadar = (config) => {
       "android.permission.BLUETOOTH_SCAN",
       "android.permission.BLUETOOTH_CONNECT",
     ];*/
-    return config;
+    return conf;
   });
 
   // iOS configurations
-  config = withInfoPlist(config, (config) => {
+  config = withInfoPlist(config, (conf) => {
     /*config.modResults.NSLocationWhenInUseUsageDescription =
       "We need your location to detect nearby beacons.";
     config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
       "We need your location to detect nearby beacons even when the app is in the background.";
     config.modResults.NSLocationAlwaysUsageDescription =
       "We need your location to detect nearby beacons even when the app is not in use.";*/
-    config.modResults.UIBackgroundModes = ['location'];
+    conf.modResults.UIBackgroundModes = ['location'];
 
-    return config;
+    return conf;
   });
 
   return config;
