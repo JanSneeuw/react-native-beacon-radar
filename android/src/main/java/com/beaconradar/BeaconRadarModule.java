@@ -25,6 +25,8 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.modules.core.PermissionAwareActivity;
+import com.facebook.react.modules.core.PermissionListener;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
@@ -36,13 +38,16 @@ import org.altbeacon.beacon.Region;
 import java.util.Collection;
 
 @ReactModule(name = BeaconRadarModule.NAME)
-public class BeaconRadarModule extends ReactContextBaseJavaModule {
+public class BeaconRadarModule extends ReactContextBaseJavaModule implements PermissionListener {
   public static final String NAME = "BeaconRadar";
+  private static final int PERMISSION_REQUEST_CODE = 1;
   private BeaconManager beaconManager;
   private Region region;
 
   public static final String UPDATE = "updateBeacons";
   public static final String BEACONS = "beacons";
+
+  private Promise permissionPromise;
 
   private IntentFilter intentFilter;
   private BroadcastReceiver receiver;
@@ -93,14 +98,21 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void requestAlwaysAuthorization(final Promise promise) {
-    if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-      promise.resolve("authorized");
-    } else {
-      ActivityCompat.requestPermissions(reactContext.getCurrentActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-      if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-        promise.resolve("authorized");
+    permissionPromise = promise;
+    PermissionAwareActivity activity = (PermissionAwareActivity) reactContext.getCurrentActivity();
+    if (activity != null) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        activity.requestPermissions(new String[]{
+          Manifest.permission.ACCESS_FINE_LOCATION,
+          Manifest.permission.BLUETOOTH,
+          Manifest.permission.BLUETOOTH_CONNECT,
+          Manifest.permission.BLUETOOTH_SCAN
+        }, PERMISSION_REQUEST_CODE, this);
       } else {
-        promise.resolve("denied");
+        activity.requestPermissions(new String[]{
+          Manifest.permission.ACCESS_FINE_LOCATION,
+          Manifest.permission.BLUETOOTH,
+        }, PERMISSION_REQUEST_CODE, this);
       }
     }
   }
@@ -236,6 +248,30 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule {
   public void stopForegroundService() {
     Intent serviceIntent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
     getReactApplicationContext().stopService(serviceIntent);
+  }
+
+  @Override
+  public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    if (requestCode == 1 && permissionPromise != null) {
+      boolean allPermissionsGranted = true;
+      for (int result : grantResults) {
+        if (result != PackageManager.PERMISSION_GRANTED) {
+          allPermissionsGranted = false;
+          break;
+        }
+      }
+
+      if (allPermissionsGranted) {
+        permissionPromise.resolve("authorized");
+      } else {
+        permissionPromise.resolve("denied");
+      }
+
+      permissionPromise = null;
+      return true;
+    }
+
+    return false;
   }
 
 }
