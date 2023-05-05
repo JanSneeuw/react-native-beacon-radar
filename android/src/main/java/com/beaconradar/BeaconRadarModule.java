@@ -124,7 +124,20 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
   @ReactMethod
   public void getAuthorizationStatus(final Promise promise) {
-    if (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    Boolean isAuthorized = false;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      isAuthorized = (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(reactContext, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(reactContext, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(reactContext, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+      );
+    } else {
+      isAuthorized = (ContextCompat.checkSelfPermission(reactContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(reactContext, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+      );
+    }
+
+    if (isAuthorized) {
       promise.resolve("authorized");
     } else {
       promise.resolve("denied");
