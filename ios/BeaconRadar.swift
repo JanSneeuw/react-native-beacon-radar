@@ -8,9 +8,10 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
     return "BeaconRadar"
   }
 
-  private var locationManager: CLLocationManager!
-  private var beaconRegion: CLBeaconRegion!
-  public var bridge: RCTBridge!
+    private var locationManager: CLLocationManager!
+    private var beaconRegion: CLBeaconRegion!
+    public var bridge: RCTBridge!
+    private var centralManager: CBCentralManager!
 
     @objc func startScanning(_ uuid: String, config: NSDictionary) {
       if #available(iOS 13.0, *) {
@@ -56,6 +57,19 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
         let statusString = statusToString(status)
         resolve(["status": statusString])
     }
+    @objc func isBluetoothEnabled(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        centralManager = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: false])
+
+        switch centralManager.state {
+        case .poweredOn:
+          resolve(true)
+        case .poweredOff, .resetting, .unauthorized, .unknown, .unsupported:
+          resolve(false)
+        @unknown default:
+          reject("BLUETOOTH_ERROR", "Unknown Bluetooth state", nil)
+        }
+      }
+
     
     @objc func getAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         let status = CLLocationManager.authorizationStatus()

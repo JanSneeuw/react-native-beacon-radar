@@ -1,6 +1,7 @@
 package com.beaconradar;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import java.util.Collection;
 @ReactModule(name = BeaconRadarModule.NAME)
 public class BeaconRadarModule extends ReactContextBaseJavaModule implements PermissionListener {
   public static final String NAME = "BeaconRadar";
+  private static final String BLUETOOTH_ERROR = "BLUETOOTH_ERROR";
   private static final int PERMISSION_REQUEST_CODE = 1;
   private BeaconManager beaconManager;
   private Region region;
@@ -55,6 +57,8 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
   private static BeaconRadarModule instance;
 
   private final ReactContext reactContext;
+  private final BluetoothAdapter bluetoothAdapter;
+
 
   public BeaconRadarModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -65,6 +69,7 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
     instance = this;
 
+    bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
   }
 
   public static BeaconRadarModule getInstance() {
@@ -120,6 +125,15 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
   @ReactMethod
   public void requestWhenInUseAuthorization(final Promise promise) {
     requestAlwaysAuthorization(promise);
+  }
+
+  @ReactMethod
+  public void isBluetoothEnabled(Promise promise) {
+    if (bluetoothAdapter == null) {
+      promise.reject(BLUETOOTH_ERROR, "Bluetooth not supported on this device.");
+    } else {
+      promise.resolve(bluetoothAdapter.isEnabled());
+    }
   }
 
   @ReactMethod

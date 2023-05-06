@@ -45,6 +45,10 @@ export function getAuthorizationStatus(): Promise<{ status: string }> {
   return BeaconRadar.getAuthorizationStatus();
 }
 
+export function isBluetoothEnabled(): Promise<boolean> {
+  return BeaconRadar.isBluetoothEnabled();
+}
+
 export function startRadar(config: any) {
   if (Platform.OS === 'android') {
     return BeaconRadar.startRadar(config);
