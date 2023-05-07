@@ -45,6 +45,14 @@ public class BeaconRadarForegroundService extends Service {
     sendBroadcast(broadcastIntent);
   }
 
+  private int generateRandomId() {
+    Random random = new Random();
+    return random.nextInt(10000);
+  }
+
+  private int generateId() {
+    return (int) (System.currentTimeMillis() % 10000);
+  }
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     String text = intent.getStringExtra("foregroundMessage");
@@ -60,7 +68,7 @@ public class BeaconRadarForegroundService extends Service {
       .setContentIntent(pendingIntent)
       .build();
 
-    startForeground(1, notification);
+    startForeground(generateId(), notification);
 
 
     // runScan with empty promise
