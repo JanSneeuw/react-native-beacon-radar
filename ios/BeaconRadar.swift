@@ -1,4 +1,5 @@
 import CoreLocation
+import CoreBluetooth
 import React
 
 @objc(BeaconRadar)
