@@ -37,6 +37,15 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
       }
   }
     
+    @objc func stopScanning() {
+        if let beaconRegion = self.beaconRegion {
+            self.locationManager.stopMonitoring(for: beaconRegion)
+            self.locationManager.stopRangingBeacons(in: beaconRegion)
+            self.beaconRegion = nil
+            self.locationManager = nil
+        }
+    }
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         var msg = ""
 
