@@ -3,7 +3,7 @@ import CoreBluetooth
 import React
 
 @objc(BeaconRadar)
-class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
+class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentralManagerDelegate {
   
   static func moduleName() -> String {
     return "BeaconRadar"
@@ -37,6 +37,29 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
       }
   }
     
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        var msg = ""
+
+        switch central.state {
+        case .unknown:
+            msg = "unknown"
+        case .resetting:
+            msg = "resetting"
+        case .unsupported:
+            msg = "unsupported"
+        case .unauthorized:
+            msg = "unauthorized"
+        case .poweredOff:
+            msg = "poweredOff"
+        case .poweredOn:
+            msg = "poweredOn"
+        @unknown default:
+            msg = "unknown"
+        }
+        bridge.eventDispatcher().sendAppEvent(withName: "onBluetoothStateChanged", body: ["state": msg])
+    }
+
+    
     @objc func requestAlwaysAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         let locationManager = CLLocationManager()
             locationManager.delegate = self
@@ -59,16 +82,7 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate {
         resolve(["status": statusString])
     }
     @objc func isBluetoothEnabled(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        centralManager = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: false])
-
-        switch centralManager.state {
-        case .poweredOn:
-          resolve(true)
-        case .poweredOff, .resetting, .unauthorized, .unknown, .unsupported:
-          resolve(false)
-        @unknown default:
-          reject("BLUETOOTH_ERROR", "Unknown Bluetooth state", nil)
-        }
+        centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: false])
       }
 
     
