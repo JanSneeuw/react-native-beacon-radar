@@ -20,12 +20,15 @@ const withBeaconRadar = (config) => {
 
   // iOS configurations
   config = withInfoPlist(config, (conf) => {
-    /*config.modResults.NSLocationWhenInUseUsageDescription =
-      "We need your location to detect nearby beacons.";
     config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
-      "We need your location to detect nearby beacons even when the app is in the background.";
-    config.modResults.NSLocationAlwaysUsageDescription =
-      "We need your location to detect nearby beacons even when the app is not in use.";*/
+      'We use your location to find nearby beacons even when the app is not running';
+    config.modResults.NSLocationWhenInUseUsageDescription =
+      "We use your location to find nearby beacons while you're using the app";
+    config.modResults.NSBluetoothAlwaysUsageDescription =
+      'We use Bluetooth to scan for nearby beacons';
+    config.modResults.NSBluetoothPeripheralUsageDescription =
+      'We use Bluetooth to connect to nearby devices';
+
     conf.modResults.UIBackgroundModes = ['location'];
 
     return conf;
