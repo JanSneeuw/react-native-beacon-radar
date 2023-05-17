@@ -73,6 +73,7 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
     }
 
     
+    
     @objc func requestAlwaysAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         let locationManager = CLLocationManager()
             locationManager.delegate = self
@@ -94,9 +95,6 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
         let statusString = statusToString(status)
         resolve(["status": statusString])
     }
-    @objc func isBluetoothEnabled(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: false])
-      }
 
     
     @objc func getAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {

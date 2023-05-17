@@ -84,21 +84,33 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
   @ReactMethod
   public void startScanning(String uuid, ReadableMap config, final Promise promise) {
-      if (config != null && config.hasKey("useForegroundService") && config.getBoolean("useForegroundService")) {
-        String foregroundTitle = config.hasKey("foregroundTitle") ? config.getString("foregroundTitle") : "Beacon Radar";
-        String foregroundMessage = config.hasKey("foregroundMessage") ? config.getString("foregroundMessage") : "Beacon Radar running in the background";
-        Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
-        intent.putExtra("foregroundMessage", foregroundMessage);
-        intent.putExtra("foregroundTitle", foregroundTitle);
-        intent.putExtra("uuid", uuid);
-        beaconManager.setBackgroundBetweenScanPeriod(0);
-        beaconManager.setBackgroundScanPeriod(1100);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          getReactApplicationContext().startForegroundService(intent);
-        }
-      }else {
-        runScan(uuid, promise);
+    if (beaconManager.isAnyConsumerBound()) {
+      try {
+        Log.d("BeaconRadarModule", "Stopping ranging");
+        beaconManager.stopRangingBeacons(region);
+        beaconManager.removeAllRangeNotifiers();
+        Log.d("BeaconRadarModule", "Stopped monitoring");
+      } catch (Exception e) {
+        promise.reject("STOP_SCANNING_FAILED", "Failed to stop scanning for iBeacons.", e);
+        return;
       }
+    }
+
+    if (config != null && config.hasKey("useForegroundService") && config.getBoolean("useForegroundService")) {
+      String foregroundTitle = config.hasKey("foregroundTitle") ? config.getString("foregroundTitle") : "Beacon Radar";
+      String foregroundMessage = config.hasKey("foregroundMessage") ? config.getString("foregroundMessage") : "Beacon Radar running in the background";
+      Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
+      intent.putExtra("foregroundMessage", foregroundMessage);
+      intent.putExtra("foregroundTitle", foregroundTitle);
+      intent.putExtra("uuid", uuid);
+      beaconManager.setBackgroundBetweenScanPeriod(0);
+      beaconManager.setBackgroundScanPeriod(5000);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        getReactApplicationContext().startForegroundService(intent);
+      }
+    }else {
+      runScan(uuid, promise);
+    }
   }
 
   @ReactMethod
@@ -120,6 +132,46 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
         }, PERMISSION_REQUEST_CODE, this);
       }
     }
+  }
+
+  @ReactMethod
+  public void initializeBluetoothManager(final Promise promise) {
+    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+    getReactApplicationContext().registerReceiver(bluetoothStateReceiver, filter);
+
+    // Add this to get initial state
+    String statusText = getBluetoothState();
+    WritableMap bluetoothStateMap = Arguments.createMap();
+    bluetoothStateMap.putString("state", statusText);
+
+    getReactApplicationContext()
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit("onBluetoothStateChanged", bluetoothStateMap);
+  }
+
+  // Add this method to check Bluetooth state
+  private String getBluetoothState() {
+    int state = bluetoothAdapter.getState();
+    String statusText = "";
+    switch (state) {
+      case BluetoothAdapter.STATE_OFF:
+        Log.d("Bluetooth", "Bluetooth turned off");
+        statusText = "poweredOff";
+        break;
+      case BluetoothAdapter.STATE_TURNING_OFF:
+        Log.d("Bluetooth", "Bluetooth turning off");
+        statusText = "turningOff";
+        break;
+      case BluetoothAdapter.STATE_ON:
+        Log.d("Bluetooth", "Bluetooth turned on");
+        statusText = "poweredOn";
+        break;
+      case BluetoothAdapter.STATE_TURNING_ON:
+        Log.d("Bluetooth", "Bluetooth turning on");
+        statusText = "turningOn";
+        break;
+    }
+    return statusText;
   }
 
   @ReactMethod
@@ -160,6 +212,16 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
   @ReactMethod
   public void startRadar(ReadableMap config, final Promise promise) {
+    if (beaconManager.isAnyConsumerBound()) {
+      try {
+        beaconManager.stopRangingBeacons(region);
+        beaconManager.removeAllRangeNotifiers();
+      } catch (Exception e) {
+        promise.reject("STOP_SCANNING_FAILED", "Failed to stop scanning for iBeacons.", e);
+        return;
+      }
+    }
+
     if (config != null && config.hasKey("useForegroundService") && config.getBoolean("useForegroundService")) {
       Intent intent = new Intent(getReactApplicationContext(), BeaconRadarForegroundService.class);
       beaconManager.setBackgroundBetweenScanPeriod(0);
@@ -209,7 +271,9 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
 
   public void runScan(String uuid, final Promise promise) {
+    Log.d("BeaconRadarModule", "running scan");
     if (!beaconManager.isAnyConsumerBound()) {
+      Log.d("BeaconRadarModule", "is not bound");
       beaconManager.addRangeNotifier(new RangeNotifier() {
         @Override
         public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
@@ -227,6 +291,7 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
               beaconArray.pushMap(beaconMap);
             }
           }
+          Log.d("BeaconRadarModule", "emitting beacons");
 
           getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -237,6 +302,7 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
         region = new Region("RNIbeaconScannerRegion", Identifier.parse(uuid), null, null);
       }
       try {
+        Log.d("BeaconRadarModule", "starting ranging");
         beaconManager.startRangingBeacons(region);
         promise.resolve(null);
       } catch (Exception e) {
@@ -300,5 +366,42 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
 
     return false;
   }
+
+  private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
+    public void onReceive(Context context, Intent intent) {
+      Log.d("BeaconRadarModule", "Bluetooth state changed");
+      final String action = intent.getAction();
+
+      if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+        final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+          BluetoothAdapter.ERROR);
+        String statusText = "";
+        switch (state) {
+          case BluetoothAdapter.STATE_OFF:
+            Log.d("Bluetooth", "Bluetooth turned off");
+            statusText = "poweredOff";
+            break;
+          case BluetoothAdapter.STATE_TURNING_OFF:
+            Log.d("Bluetooth", "Bluetooth turning off");
+            statusText = "turningOff";
+            break;
+          case BluetoothAdapter.STATE_ON:
+            Log.d("Bluetooth", "Bluetooth turned on");
+            statusText = "poweredOn";
+            break;
+          case BluetoothAdapter.STATE_TURNING_ON:
+            Log.d("Bluetooth", "Bluetooth turning on");
+            statusText = "turningOn";
+            break;
+        }
+        WritableMap bluetoothStateMap = Arguments.createMap();
+        bluetoothStateMap.putString("state", statusText);
+
+        getReactApplicationContext()
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+          .emit("onBluetoothStateChanged", bluetoothStateMap);
+      }
+    }
+  };
 
 }
