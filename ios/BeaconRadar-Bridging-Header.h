@@ -3,5 +3,5 @@
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@interface BeaconRadar : NSObject <RCTBridgeModule, CLLocationManagerDelegate>
+@interface BeaconRadar : NSObject <RCTBridgeModule, CLLocationManagerDelegate, CBCentralManagerDelegate>
 @end

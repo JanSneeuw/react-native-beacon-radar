@@ -57,3 +57,7 @@ export function startRadar(config: any) {
     return;
   }
 }
+
+export function initializeBluetoothManager() {
+  return BeaconRadar.initializeBluetoothManager();
+}

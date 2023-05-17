@@ -46,6 +46,10 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
         }
     }
     
+    @objc func initializeBluetoothManager() {
+        centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: false])
+    }
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         var msg = ""
 
