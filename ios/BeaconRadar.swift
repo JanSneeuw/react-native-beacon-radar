@@ -24,8 +24,8 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
             
               
             if let useBackgroundScanning = config["useBackgroundScanning"] as? Bool, useBackgroundScanning {
-                locationManager.allowsBackgroundLocationUpdates = true
-                locationManager.pausesLocationUpdatesAutomatically = false
+                self.locationManager.allowsBackgroundLocationUpdates = true
+                self.locationManager.pausesLocationUpdatesAutomatically = false
             }
             let uuid = UUID(uuidString: uuid)!
               self.beaconRegion = CLBeaconRegion(proximityUUID: uuid, identifier: "RNIbeaconScannerRegion")
