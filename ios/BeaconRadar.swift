@@ -16,16 +16,17 @@ class BeaconRadar: NSObject, RCTBridgeModule, CLLocationManagerDelegate, CBCentr
 
     @objc func startScanning(_ uuid: String, config: NSDictionary) {
       if #available(iOS 13.0, *) {
-          if let useBackgroundScanning = config["useBackgroundScanning"] as? Bool, useBackgroundScanning {
-              locationManager.allowsBackgroundLocationUpdates = true
-              locationManager.pausesLocationUpdatesAutomatically = false
-          }
           
           DispatchQueue.main.async {
             self.locationManager = CLLocationManager()
             self.locationManager.delegate = self
             self.locationManager.requestAlwaysAuthorization()
             
+              
+            if let useBackgroundScanning = config["useBackgroundScanning"] as? Bool, useBackgroundScanning {
+                locationManager.allowsBackgroundLocationUpdates = true
+                locationManager.pausesLocationUpdatesAutomatically = false
+            }
             let uuid = UUID(uuidString: uuid)!
               self.beaconRegion = CLBeaconRegion(proximityUUID: uuid, identifier: "RNIbeaconScannerRegion")
             
